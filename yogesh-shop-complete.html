@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yogesh Hardware Shop - Stock Management</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ea580c;
+            --surface-0: #f9fafb;
+            --surface-1: #ffffff;
+            --surface-2: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--surface-0);
+            color: var(--text-primary);
+        }
+        
+        /* LOGIN PAGE */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .login-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+        }
+        
+        .user-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .user-type-btn {
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .user-type-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* MAIN APP */
+        .app-container {
+            display: none;
+            flex: 1;
+        }
+        
+        .app-container.show {
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 8px;
+        }
+        
+        .sidebar-menu button {
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu button:hover {
+            background: var(--surface-2);
+            color: var(--text-primary);
+        }
+        
+        .sidebar-menu button.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .logout-btn {
+            width: 100%;;
+            margin-top: 20px;
+            padding: 12px 16px;
+            border: none;
+            background: var(--danger);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: var(--surface-2);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        /* DASHBOARD STATS */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        /* CONTENT CARD */
+        .content-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .content-card h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        /* FORMS */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        /* TABLES */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        table th {
+            text-align: left;
+            padding: 12px;
+            background: var(--surface-2);
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        table tr:hover {
+            background: var(--surface-2);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .badge-primary {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+        }
+        
+        .badge-success {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success);
+        }
+        
+        .badge-danger {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger);
+        }
+        
+        /* SECTIONS */
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-sm:hover {
+            background: var(--surface-2);
+        }
+        
+        .btn-sm.danger {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        
+        .alert-success {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .alert-error {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 16px;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>📦 Yogesh Shop</h1>
+            <p>Stock Management System</p>
+        </div>
+        
+        <div class="user-type-selector">
+            <button class="user-type-btn active" onclick="selectUserType('owner')">👤 Owner</button>
+            <button class="user-type-btn" onclick="selectUserType('staff')">💳 Staff</button>
+            <button class="user-type-btn" onclick="selectUserType('supplier')">📮 Supplier</button>
+        </div>
+        
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Enter username">
+        </div>
+        
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
+        
+        <button class="btn btn-primary" onclick="login()">Login</button>
+        
+        <div id="loginError" style="margin-top: 16px; text-align: center; color: var(--danger); font-size: 13px; display: none;"></div>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appPage" class="app-container">
+    <div class="sidebar">
+        <div class="sidebar-header">📦 Yogesh Shop</div>
+        
+        <ul class="sidebar-menu" id="sidebarMenu"></ul>
+        
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    
+    <div class="main-content">
+        <div class="header">
+            <h1 id="pageTitle">Dashboard</h1>
+            <div class="user-info">
+                <span id="userDisplay">Owner</span>
+            </div>
+        </div>
+        
+        <!-- OWNER DASHBOARD -->
+        <div id="ownerDashboard" class="section active">
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Products</div>
+                    <div class="stat-value" id="totalProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Inventory Value</div>
+                    <div class="stat-value" id="invValue">₹0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Low Stock Items</div>
+                    <div class="stat-value" id="lowStockCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Categories</div>
+                    <div class="stat-value">3</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ADD PRODUCT -->
+        <div id="addProductSection" class="section">
+            <div class="content-card">
+                <h2>➕ Add New Product</h2>
+                
+                <div id="addAlert"></div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="newCategory" onchange="updateSubcategories()">
+                            <option value="">Select Category</option>
+                            <option value="Paint">Paint</option>
+                            <option value="Hardware">Hardware</option>
+                            <option value="Electrical">Electrical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Parent Product Name</label>
+                        <input type="text" id="newParentName" placeholder="e.g., Birla Opus Pure Elegance">
+                    </div>
+                    <div class="form-group">
+                        <label>Brand/Company</label>
+                        <input type="text" id="newBrand" placeholder="e.g., Birla Opus">
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 24px; margin-bottom: 16px; font-size: 16px;">Variant Details</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Variant Name</label>
+                        <input type="text" id="newVariantName" placeholder="e.g., 1L Interior">
+                    </div>
+                    <div class="form-group">
+                        <label>Size/Specification</label>
+                        <input type="text" id="newSize" placeholder="e.g., 1L, 2.5mm, M10">
+                    </div>
+                    <div class="form-group">
+                        <label>Type/Color/Company</label>
+                        <input type="text" id="newType" placeholder="e.g., Interior, Polycab, Stainless Steel">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Unit</label>
+                        <input type="text" id="newUnit" placeholder="e.g., Liter, Meter, Piece">
+                    </div>
+                    <div class="form-group">
+                        <label>Cost Price (₹)</label>
+                        <input type="number" id="newCostPrice" placeholder="200">
+                    </div>
+                    <div class="form-group">
+                        <label>Sale Price (₹)</label>
+                        <input type="number" id="newSalePrice" placeholder="290">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Current Stock</label>
+                        <input type="number" id="newStock" placeholder="150">
+                    </div>
+                    <div class="form-group">
+                        <label>Minimum Stock Alert</label>
+                        <input type="number" id="newMinStock" placeholder="30">
+                    </div>
+                    <div class="form-group">
+                        <label>Markup Code</label>
+                        <input type="text" id="newMarkupCode" placeholder="AP45, E35, HW25">
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="addNewProduct()">Add Product</button>
+            </div>
+        </div>
+        
+        <!-- ALL PRODUCTS -->
+        <div id="allProductsSection" class="section">
+            <div class="content-card">
+                <h2>📋 All Products</h2>
+                
+                <div style="overflow-x: auto;">
+                    <table id="productsTable">
+                        <thead>
+                            <tr>
+                                <th>Parent Product</th>
+                                <th>Variant</th>
+                                <th>Category</th>
+                                <th>Size</th>
+                                <th>Cost</th>
+                                <th>Sale Price</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- LOW STOCK ALERTS -->
+        <div id="lowStockSection" class="section">
+            <div class="content-card">
+                <h2>⚠️ Low Stock Alerts</h2>
+                
+                <div style="overflow-x: auto;">
+                    <table id="lowStockTable">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Current Stock</th>
+                                <th>Min Level</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lowStockBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- STAFF POS -->
+        <div id="staffPOS" class="section">
+            <div class="content-card">
+                <h2>🔍 Search & Billing</h2>
+                
+                <div class="form-group">
+                    <label>Search Product</label>
+                    <input type="text" id="searchInput" placeholder="Search by name, category, size..." onkeyup="searchProducts()">
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table id="searchResults">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Size</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Qty</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="searchBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <h2>🛒 Cart</h2>
+                
+                <div style="overflow-x: auto;">
+                    <table id="cartTable">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartBody"></tbody>
+                    </table>
+                </div>
+                
+                <div style="text-align: right; margin-top: 20px;">
+                    <div style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">
+                        Total: <span id="billTotal">₹0</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="completeBill()" style="margin-right: 8px;">Complete Bill</button>
+                    <button class="btn btn-sm" onclick="clearCart()">Clear Cart</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SUPPLIER VIEW -->
+        <div id="supplierView" class="section">
+            <div class="content-card">
+                <h2>📊 Your Products Stock Status</h2>
+                
+                <div style="overflow-x: auto;">
+                    <table id="supplierTable">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Variant</th>
+                                <th>Current Stock</th>
+                                <th>Min Level</th>
+                                <th>Status</th>
+                                <th>Lead Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supplierBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// LOCAL STORAGE DATA MANAGEMENT
+let currentUser = null;
+let userType = 'owner';
+let products = JSON.parse(localStorage.getItem('products')) || [];
+let cart = [];
+
+const credentials = {
+    owner: { username: 'owner', password: 'Dinesh8844' },
+    staff: { username: 'staff', password: '1127SF' },
+    supplier: { username: 'supplier', password: '1234' }
+};
+
+function selectUserType(type) {
+    userType = type;
+    document.querySelectorAll('.user-type-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    if (!username || !password) {
+        showError('Please enter username and password');
+        return;
+    }
+    
+    const cred = credentials[userType];
+    if (username === cred.username && password === cred.password) {
+        currentUser = userType;
+        localStorage.setItem('currentUser', userType);
+        showApp();
+    } else {
+        showError('Invalid username or password');
+    }
+}
+
+function showError(msg) {
+    const errorEl = document.getElementById('loginError');
+    errorEl.textContent = msg;
+    errorEl.style.display = 'block';
+    setTimeout(() => errorEl.style.display = 'none', 3000);
+}
+
+function showApp() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appPage').classList.add('show');
+    loadUserInterface();
+}
+
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    location.reload();
+}
+
+function loadUserInterface() {
+    const userDisplay = document.getElementById('userDisplay');
+    userDisplay.textContent = currentUser.charAt(0).toUpperCase() + currentUser.slice(1);
+    
+    const sidebarMenu = document.getElementById('sidebarMenu');
+    sidebarMenu.innerHTML = '';
+    
+    if (currentUser === 'owner') {
+        sidebarMenu.innerHTML = `
+            <li><button class="nav-btn active" onclick="showSection('ownerDashboard', 'Dashboard')">📊 Dashboard</button></li>
+            <li><button class="nav-btn" onclick="showSection('addProductSection', 'Add Product')">➕ Add Product</button></li>
+            <li><button class="nav-btn" onclick="showSection('allProductsSection', 'All Products')">📋 All Products</button></li>
+            <li><button class="nav-btn" onclick="showSection('lowStockSection', 'Low Stock')">⚠️ Low Stock Alerts</button></li>
+        `;
+        renderOwnerDashboard();
+    } else if (currentUser === 'staff') {
+        sidebarMenu.innerHTML = `
+            <li><button class="nav-btn active" onclick="showSection('staffPOS', 'Billing')">💳 Billing</button></li>
+        `;
+        document.getElementById('pageTitle').textContent = 'Point of Sale';
+    } else if (currentUser === 'supplier') {
+        sidebarMenu.innerHTML = `
+            <li><button class="nav-btn active" onclick="showSection('supplierView', 'Stock Status')">📊 Stock Status</button></li>
+        `;
+        document.getElementById('pageTitle').textContent = 'Supplier Portal';
+        renderSupplierView();
+    }
+    
+    attachNavListeners();
+}
+
+function attachNavListeners() {
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+}
+
+function showSection(sectionId, title) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+    document.getElementById('pageTitle').textContent = title;
+    
+    if (sectionId === 'allProductsSection') renderAllProducts();
+    if (sectionId === 'lowStockSection') renderLowStock();
+    if (sectionId === 'staffPOS') renderPOS();
+}
+
+// OWNER FUNCTIONS
+function renderOwnerDashboard() {
+    document.getElementById('totalProducts').textContent = products.length;
+    let invValue = products.reduce((sum, p) => sum + (p.costPrice * p.stock), 0);
+    document.getElementById('invValue').textContent = '₹' + invValue.toLocaleString();
+    let lowCount = products.filter(p => p.stock < p.minStock).length;
+    document.getElementById('lowStockCount').textContent = lowCount;
+}
+
+function addNewProduct() {
+    const category = document.getElementById('newCategory').value;
+    const parentName = document.getElementById('newParentName').value;
+    const brand = document.getElementById('newBrand').value;
+    const variantName = document.getElementById('newVariantName').value;
+    const size = document.getElementById('newSize').value;
+    const type = document.getElementById('newType').value;
+    const unit = document.getElementById('newUnit').value;
+    const costPrice = parseInt(document.getElementById('newCostPrice').value);
+    const salePrice = parseInt(document.getElementById('newSalePrice').value);
+    const stock = parseInt(document.getElementById('newStock').value);
+    const minStock = parseInt(document.getElementById('newMinStock').value);
+    const markupCode = document.getElementById('newMarkupCode').value;
+    
+    if (!category || !parentName || !variantName || !costPrice || !salePrice) {
+        showAlert('addAlert', 'Please fill all required fields', 'error');
+        return;
+    }
+    
+    const parentId = 'P-' + Date.now();
+    const variantId = 'VAR-' + Date.now();
+    
+    const product = {
+        parentId,
+        variantId,
+        category,
+        parentName,
+        brand,
+        variantName,
+        size,
+        type,
+        unit,
+        costPrice,
+        salePrice,
+        stock,
+        minStock,
+        markupCode
+    };
+    
+    products.push(product);
+    localStorage.setItem('products', JSON.stringify(products));
+    
+    showAlert('addAlert', '✅ Product added successfully!', 'success');
+    document.getElementById('newCategory').value = '';
+    document.getElementById('newParentName').value = '';
+    document.getElementById('newBrand').value = '';
+    document.getElementById('newVariantName').value = '';
+    document.getElementById('newSize').value = '';
+    document.getElementById('newType').value = '';
+    document.getElementById('newUnit').value = '';
+    document.getElementById('newCostPrice').value = '';
+    document.getElementById('newSalePrice').value = '';
+    document.getElementById('newStock').value = '';
+    document.getElementById('newMinStock').value = '';
+    document.getElementById('newMarkupCode').value = '';
+    
+    renderOwnerDashboard();
+}
+
+function renderAllProducts() {
+    const tbody = document.getElementById('productsBody');
+    tbody.innerHTML = products.map(p => `
+        <tr>
+            <td><strong>${p.parentName}</strong></td>
+            <td>${p.variantName}</td>
+            <td><span class="badge badge-primary">${p.category}</span></td>
+            <td>${p.size}</td>
+            <td>₹${p.costPrice}</td>
+            <td><strong>₹${p.salePrice}</strong></td>
+            <td>${p.stock}</td>
+            <td>
+                <span class="badge ${p.stock >= p.minStock ? 'badge-success' : 'badge-danger'}">
+                    ${p.stock >= p.minStock ? 'OK' : 'LOW'}
+                </span>
+            </td>
+            <td>
+                <button class="btn-sm danger" onclick="deleteProduct('${p.variantId}')">Delete</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderLowStock() {
+    const tbody = document.getElementById('lowStockBody');
+    const lowItems = products.filter(p => p.stock < p.minStock);
+    
+    if (lowItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">All products have sufficient stock ✅</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = lowItems.map(p => `
+        <tr>
+            <td><strong>${p.parentName} - ${p.variantName}</strong></td>
+            <td><span style="color: var(--danger); font-weight: 600;">${p.stock}</span></td>
+            <td>${p.minStock}</td>
+            <td><button class="btn-sm" onclick="updateStock('${p.variantId}', ${p.stock + 50})">Reorder +50</button></td>
+        </tr>
+    `).join('');
+}
+
+function deleteProduct(variantId) {
+    if (confirm('Are you sure?')) {
+        products = products.filter(p => p.variantId !== variantId);
+        localStorage.setItem('products', JSON.stringify(products));
+        renderAllProducts();
+        renderOwnerDashboard();
+    }
+}
+
+function updateStock(variantId, newStock) {
+    const product = products.find(p => p.variantId === variantId);
+    if (product) {
+        product.stock = newStock;
+        localStorage.setItem('products', JSON.stringify(products));
+        renderLowStock();
+        renderOwnerDashboard();
+    }
+}
+
+// STAFF POS FUNCTIONS
+function renderPOS() {
+    renderSearchResults();
+    renderCart();
+}
+
+function searchProducts() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    renderSearchResults(search);
+}
+
+function renderSearchResults(search = '') {
+    const tbody = document.getElementById('searchBody');
+    
+    let filtered = products;
+    if (search) {
+        filtered = products.filter(p => 
+            p.parentName.toLowerCase().includes(search) ||
+            p.variantName.toLowerCase().includes(search) ||
+            p.category.toLowerCase().includes(search) ||
+            p.size.toLowerCase().includes(search)
+        );
+    }
+    
+    tbody.innerHTML = filtered.map((p, idx) => `
+        <tr>
+            <td>${p.parentName}</td>
+            <td><span class="badge badge-primary">${p.category}</span></td>
+            <td>${p.size}</td>
+            <td><strong>₹${p.salePrice}</strong></td>
+            <td>${p.stock}</td>
+            <td><input type="number" id="qty-${idx}" min="1" value="1" style="width: 60px;"></td>
+            <td><button class="btn-sm" onclick="addToCart(${idx})">Add</button></td>
+        </tr>
+    `).join('');
+}
+
+function addToCart(idx) {
+    const product = products[idx];
+    const qty = parseInt(document.getElementById(`qty-${idx}`).value);
+    
+    if (qty > product.stock) {
+        alert('Insufficient stock!');
+        return;
+    }
+    
+    const existing = cart.find(c => c.variantId === product.variantId);
+    if (existing) {
+        existing.qty += qty;
+    } else {
+        cart.push({...product, qty});
+    }
+    
+    renderCart();
+}
+
+function renderCart() {
+    const tbody = document.getElementById('cartBody');
+    tbody.innerHTML = cart.map((item, idx) => `
+        <tr>
+            <td>${item.parentName} - ${item.variantName}</td>
+            <td><input type="number" min="1" value="${item.qty}" onchange="updateCartQty(${idx}, this.value)" style="width: 60px;"></td>
+            <td>₹${item.salePrice}</td>
+            <td>₹${item.salePrice * item.qty}</td>
+            <td><button class="btn-sm danger" onclick="removeFromCart(${idx})">Remove</button></td>
+        </tr>
+    `).join('');
+    
+    const total = cart.reduce((sum, item) => sum + (item.salePrice * item.qty), 0);
+    document.getElementById('billTotal').textContent = '₹' + total.toLocaleString();
+}
+
+function updateCartQty(idx, qty) {
+    cart[idx].qty = parseInt(qty);
+    renderCart();
+}
+
+function removeFromCart(idx) {
+    cart.splice(idx, 1);
+    renderCart();
+}
+
+function completeBill() {
+    if (cart.length === 0) {
+        alert('Add items to cart first!');
+        return;
+    }
+    
+    cart.forEach(item => {
+        const product = products.find(p => p.variantId === item.variantId);
+        product.stock -= item.qty;
+    });
+    
+    localStorage.setItem('products', JSON.stringify(products));
+    
+    const total = cart.reduce((sum, item) => sum + (item.salePrice * item.qty), 0);
+    alert(`✅ Bill Completed!\nTotal: ₹${total}`);
+    
+    cart = [];
+    renderCart();
+    renderOwnerDashboard();
+}
+
+function clearCart() {
+    cart = [];
+    renderCart();
+}
+
+// SUPPLIER FUNCTIONS
+function renderSupplierView() {
+    const tbody = document.getElementById('supplierBody');
+    tbody.innerHTML = products.map(p => `
+        <tr>
+            <td><strong>${p.parentName}</strong></td>
+            <td>${p.variantName}</td>
+            <td><strong>${p.stock}</strong></td>
+            <td>${p.minStock}</td>
+            <td>
+                <span class="badge ${p.stock >= p.minStock ? 'badge-success' : 'badge-danger'}">
+                    ${p.stock >= p.minStock ? '✅ OK' : '⚠️ REORDER'}
+                </span>
+            </td>
+            <td>3-5 days</td>
+        </tr>
+    `).join('');
+}
+
+// UTILITY FUNCTIONS
+function showAlert(elementId, message, type) {
+    const alertEl = document.getElementById(elementId);
+    alertEl.className = `alert alert-${type}`;
+    alertEl.textContent = message;
+    alertEl.style.display = 'block';
+    
+    if (type === 'success') {
+        setTimeout(() => alertEl.style.display = 'none', 2000);
+    }
+}
+
+function updateSubcategories() {
+    // Can add subcategories logic here
+}
+
+// INIT
+window.addEventListener('load', function() {
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        currentUser = savedUser;
+        userType = savedUser;
+        showApp();
+    }
+});
+</script>
+
+</body>
+</html>
