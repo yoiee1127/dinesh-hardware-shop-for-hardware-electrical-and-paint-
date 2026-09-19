@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yogesh Hardware Shop - Stock Management</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --primary: #2563eb;
+            --secondary: #1e40af;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --surface-0: #f9fafb;
+            --surface-1: #ffffff;
+            --surface-2: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--surface-0);
+            color: var(--text-primary);
+        }
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        .login-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .login-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .btn {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            background: var(--primary);
+            color: white;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+        .user-type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .user-type-btn {
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .user-type-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+        .app-container { display: none; }
+        .app-container.show { display: flex; flex: 1; }
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar-header {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li { margin-bottom: 8px; }
+        .sidebar-menu button {
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+        .sidebar-menu button:hover { background: var(--surface-2); }
+        .sidebar-menu button.active { background: var(--primary); color: white; }
+        .logout-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px 16px;
+            border: none;
+            background: var(--danger);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+        .header h1 { font-size: 32px; font-weight: 700; }
+        .user-info {
+            padding: 10px 16px;
+            background: var(--surface-2);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .stat-value { font-size: 28px; font-weight: 700; }
+        .content-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .content-card h2 { font-size: 20px; margin-bottom: 20px; font-weight: 700; }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        table th {
+            text-align: left;
+            padding: 12px;
+            background: var(--surface-2);
+            color: var(--text-secondary);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+        }
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        table tr:hover { background: var(--surface-2); }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-primary { background: rgba(37, 99, 235, 0.1); color: var(--primary); }
+        .badge-success { background: rgba(22, 163, 74, 0.1); color: var(--success); }
+        .badge-danger { background: rgba(220, 38, 38, 0.1); color: var(--danger); }
+        .section { display: none; }
+        .section.active { display: block; }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+        }
+        .btn-sm:hover { background: var(--surface-2); }
+        .btn-sm.danger { color: var(--danger); border-color: var(--danger); }
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        .alert-success {
+            background: rgba(22, 163, 74, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        .alert-error {
+            background: rgba(220, 38, 38, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        @media (max-width: 768px) {
+            .app-container { flex-direction: column; }
+            .sidebar { width: 100%; max-height: none; }
+            .main-content { max-height: none; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="loginPage" class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>📦 Yogesh Shop</h1>
+            <p>Stock Management System</p>
+        </div>
+        
+        <div class="user-type-selector">
+            <button class="user-type-btn active" onclick="selectUserType('owner')">👤 Owner</button>
+            <button class="user-type-btn" onclick="selectUserType('staff')">💳 Staff</button>
+            <button class="user-type-btn" onclick="selectUserType('supplier')">📮 Supplier</button>
+        </div>
+        
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Enter username">
+        </div>
+        
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter password">
+        </div>
+        
+        <button class="btn" onclick="login()">Login</button>
+        <div id="loginError" style="margin-top: 16px; text-align: center; color: var(--danger); font-size: 13px; display: none;"></div>
+    </div>
+</div>
+
+<div id="appPage" class="app-container">
+    <div class="sidebar">
+        <div class="sidebar-header">📦 Yogesh Shop</div>
+        <ul class="sidebar-menu" id="sidebarMenu"></ul>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+    
+    <div class="main-content">
+        <div class="header">
+            <h1 id="pageTitle">Dashboard</h1>
+            <div class="user-info"><span id="userDisplay">Owner</span></div>
+        </div>
+        
+        <div id="ownerDashboard" class="section active">
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Products</div>
+                    <div class="stat-value" id="totalProducts">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Inventory Value</div>
+                    <div class="stat-value" id="invValue">₹0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Low Stock Items</div>
+                    <div class="stat-value" id="lowStockCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="addProductSection" class="section">
+            <div class="content-card">
+                <h2>➕ Add New Product</h2>
+                <div id="addAlert"></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="newCategory">
+                            <option value="">Select</option>
+                            <option value="Paint">Paint</option>
+                            <option value="Hardware">Hardware</option>
+                            <option value="Electrical">Electrical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="newName" placeholder="Product name">
+                    </div>
+                    <div class="form-group">
+                        <label>Sale Price (₹)</label>
+                        <input type="number" id="newPrice" placeholder="Price">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" id="newStock" placeholder="Quantity">
+                    </div>
+                    <div class="form-group">
+                        <label>Min Stock</label>
+                        <input type="number" id="newMinStock" placeholder="Alert level">
+                    </div>
+                </div>
+                <button class="btn" onclick="addProduct()" style="width: auto; padding: 10px 20px;">Add Product</button>
+            </div>
+        </div>
+
+        <div id="allProductsSection" class="section">
+            <div class="content-card">
+                <h2>📋 All Products</h2>
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="staffPOS" class="section">
+            <div class="content-card">
+                <h2>💳 Billing</h2>
+                <div class="form-group">
+                    <label>Search</label>
+                    <input type="text" id="searchInput" placeholder="Search product..." onkeyup="searchProducts()">
+                </div>
+                <table id="searchTable" style="margin-bottom: 20px;">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Qty</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="searchBody"></tbody>
+                </table>
+            </div>
+
+            <div class="content-card">
+                <h2>🛒 Cart</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartBody"></tbody>
+                </table>
+                <div style="text-align: right; margin-top: 20px;">
+                    <div style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Total: <span id="billTotal">₹0</span></div>
+                    <button class="btn" onclick="completeBill()" style="width: auto; margin-right: 8px;">Complete Bill</button>
+                    <button class="btn-sm" onclick="clearCart()">Clear</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="supplierView" class="section">
+            <div class="content-card">
+                <h2>📊 Stock Status</h2>
+                <table id="supplierTable">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Stock</th>
+                            <th>Min</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="supplierBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentUser = null;
+let userType = 'owner';
+let products = JSON.parse(localStorage.getItem('products')) || [];
+let cart = [];
+
+const credentials = {
+    owner: { username: 'owner', password: 'Dinesh8844' },
+    staff: { username: 'staff', password: '1127SF' },
+    supplier: { username: 'supplier', password: '1234' }
+};
+
+function selectUserType(type) {
+    userType = type;
+    document.querySelectorAll('.user-type-btn').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+}
+
+function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    
+    if (!username || !password) {
+        showError('Please enter both fields');
+        return;
+    }
+    
+    const cred = credentials[userType];
+    if (username === cred.username && password === cred.password) {
+        currentUser = userType;
+        localStorage.setItem('currentUser', userType);
+        showApp();
+    } else {
+        showError('Invalid credentials');
+    }
+}
+
+function showError(msg) {
+    const errorEl = document.getElementById('loginError');
+    errorEl.textContent = msg;
+    errorEl.style.display = 'block';
+    setTimeout(() => errorEl.style.display = 'none', 3000);
+}
+
+function showApp() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appPage').classList.add('show');
+    loadUserInterface();
+}
+
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    location.reload();
+}
+
+function loadUserInterface() {
+    document.getElementById('userDisplay').textContent = currentUser.charAt(0).toUpperCase() + currentUser.slice(1);
+    
+    const sidebarMenu = document.getElementById('sidebarMenu');
+    sidebarMenu.innerHTML = '';
+    
+    if (currentUser === 'owner') {
+        sidebarMenu.innerHTML = `
+            <li><button class="nav-btn active" onclick="showSection('ownerDashboard')">📊 Dashboard</button></li>
+            <li><button class="nav-btn" onclick="showSection('addProductSection')">➕ Add Product</button></li>
+            <li><button class="nav-btn" onclick="showSection('allProductsSection')">📋 All Products</button></li>
+        `;
+        renderOwnerDashboard();
+    } else if (currentUser === 'staff') {
+        sidebarMenu.innerHTML = `
+            <li><button class="nav-btn active" onclick="showSection('staffPOS')">💳 Billing</button></li>
+        `;
+    } else {
+        sidebarMenu.innerHTML = `
+            <li><button class="nav-btn active" onclick="showSection('supplierView')">📊 Stock</button></li>
+        `;
+        renderSupplierView();
+    }
+}
+
+function showSection(sectionId) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(sectionId).classList.add('active');
+    
+    if (sectionId === 'allProductsSection') renderAllProducts();
+    if (sectionId === 'staffPOS') renderPOS();
+}
+
+function renderOwnerDashboard() {
+    document.getElementById('totalProducts').textContent = products.length;
+    let invValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+    document.getElementById('invValue').textContent = '₹' + invValue.toLocaleString();
+    let lowCount = products.filter(p => p.stock < p.minStock).length;
+    document.getElementById('lowStockCount').textContent = lowCount;
+}
+
+function addProduct() {
+    const category = document.getElementById('newCategory').value;
+    const name = document.getElementById('newName').value;
+    const price = parseInt(document.getElementById('newPrice').value);
+    const stock = parseInt(document.getElementById('newStock').value);
+    const minStock = parseInt(document.getElementById('newMinStock').value);
+    
+    if (!category || !name || !price || !stock) {
+        showAlert('addAlert', 'Fill all fields', 'error');
+        return;
+    }
+    
+    products.push({ id: Date.now(), category, name, price, stock, minStock });
+    localStorage.setItem('products', JSON.stringify(products));
+    showAlert('addAlert', '✅ Product added!', 'success');
+    document.getElementById('newCategory').value = '';
+    document.getElementById('newName').value = '';
+    document.getElementById('newPrice').value = '';
+    document.getElementById('newStock').value = '';
+    document.getElementById('newMinStock').value = '';
+    renderOwnerDashboard();
+}
+
+function renderAllProducts() {
+    const tbody = document.getElementById('productsBody');
+    tbody.innerHTML = products.map(p => `
+        <tr>
+            <td>${p.name}</td>
+            <td><span class="badge badge-primary">${p.category}</span></td>
+            <td>₹${p.price}</td>
+            <td>${p.stock}</td>
+            <td><span class="badge ${p.stock >= p.minStock ? 'badge-success' : 'badge-danger'}">${p.stock >= p.minStock ? 'OK' : 'LOW'}</span></td>
+            <td><button class="btn-sm danger" onclick="deleteProduct(${p.id})">Delete</button></td>
+        </tr>
+    `).join('');
+}
+
+function deleteProduct(id) {
+    if (confirm('Delete this product?')) {
+        products = products.filter(p => p.id !== id);
+        localStorage.setItem('products', JSON.stringify(products));
+        renderAllProducts();
+        renderOwnerDashboard();
+    }
+}
+
+function renderPOS() {
+    renderSearchResults();
+    renderCart();
+}
+
+function searchProducts() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    renderSearchResults(search);
+}
+
+function renderSearchResults(search = '') {
+    const tbody = document.getElementById('searchBody');
+    let filtered = products;
+    if (search) filtered = products.filter(p => p.name.toLowerCase().includes(search) || p.category.toLowerCase().includes(search));
+    
+    tbody.innerHTML = filtered.map((p, idx) => `
+        <tr>
+            <td>${p.name}</td>
+            <td>₹${p.price}</td>
+            <td>${p.stock}</td>
+            <td><input type="number" id="qty-${idx}" min="1" value="1" style="width: 50px;"></td>
+            <td><button class="btn-sm" onclick="addToCart(${idx})">Add</button></td>
+        </tr>
+    `).join('');
+}
+
+function addToCart(idx) {
+    const product = products[idx];
+    const qty = parseInt(document.getElementById(`qty-${idx}`).value);
+    if (qty > product.stock) { alert('Insufficient stock'); return; }
+    
+    const existing = cart.find(c => c.id === product.id);
+    if (existing) existing.qty += qty;
+    else cart.push({...product, qty});
+    renderCart();
+}
+
+function renderCart() {
+    const tbody = document.getElementById('cartBody');
+    tbody.innerHTML = cart.map((item, idx) => `
+        <tr>
+            <td>${item.name}</td>
+            <td><input type="number" min="1" value="${item.qty}" onchange="updateQty(${idx}, this.value)" style="width: 50px;"></td>
+            <td>₹${item.price}</td>
+            <td>₹${item.price * item.qty}</td>
+            <td><button class="btn-sm danger" onclick="removeCart(${idx})">Remove</button></td>
+        </tr>
+    `).join('');
+    
+    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    document.getElementById('billTotal').textContent = '₹' + total.toLocaleString();
+}
+
+function updateQty(idx, qty) { cart[idx].qty = parseInt(qty); renderCart(); }
+function removeCart(idx) { cart.splice(idx, 1); renderCart(); }
+
+function completeBill() {
+    if (cart.length === 0) { alert('Add items!'); return; }
+    cart.forEach(item => {
+        const product = products.find(p => p.id === item.id);
+        product.stock -= item.qty;
+    });
+    localStorage.setItem('products', JSON.stringify(products));
+    const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    alert(`✅ Bill: ₹${total}`);
+    cart = [];
+    renderCart();
+}
+
+function clearCart() { cart = []; renderCart(); }
+
+function renderSupplierView() {
+    const tbody = document.getElementById('supplierBody');
+    tbody.innerHTML = products.map(p => `
+        <tr>
+            <td>${p.name}</td>
+            <td>${p.stock}</td>
+            <td>${p.minStock}</td>
+            <td><span class="badge ${p.stock >= p.minStock ? 'badge-success' : 'badge-danger'}">${p.stock >= p.minStock ? '✅ OK' : '⚠️ REORDER'}</span></td>
+        </tr>
+    `).join('');
+}
+
+function showAlert(elementId, message, type) {
+    const alertEl = document.getElementById(elementId);
+    alertEl.className = `alert alert-${type}`;
+    alertEl.textContent = message;
+    if (type === 'success') setTimeout(() => alertEl.style.display = 'none', 2000);
+}
+
+window.addEventListener('load', function() {
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        currentUser = savedUser;
+        userType = savedUser;
+        showApp();
+    }
+});
+</script>
+
+</body>
+</html>
